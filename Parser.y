@@ -1,7 +1,7 @@
 {
-module Parser where 
+  module Parser where 
 
-import Lexer
+  import Lexer
 }
 
 %name parser 
