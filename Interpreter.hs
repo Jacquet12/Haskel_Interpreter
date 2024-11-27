@@ -7,6 +7,7 @@ isValue BTrue = True
 isValue BFalse = True 
 isValue (Num _) = True 
 isValue (Lam _ _ _) = True
+isValue (List xs) = all isValue xs -- Verifica se todos os elementos da lista são valores
 isValue _ = False 
 
 -- Função: subst
@@ -34,9 +35,34 @@ subst x n (Lt e1 e2) = Lt (subst x n e1) (subst x n e2)
 subst x n (If e e1 e2) = If (subst x n e) (subst x n e1) (subst x n e2)
 subst x n (Lam v t b) = Lam v t (subst x n b)
 subst x n (App e1 e2) = App (subst x n e1) (subst x n e2)
+subst x n (List xs) = List (map (subst x n) xs) -- Substituição dentro de listas
 subst _ _ e = e
 
+-- Adicionando suporte a listas
 step :: Expr -> Expr 
+-- Processa listas (recursivamente avalia cada elemento)
+step (List (x:xs))
+  | not (isValue x) = List (step x : xs) -- Avalia o primeiro elemento da lista
+  | otherwise = List (x : stepRest xs)  -- Avalia o restante da lista
+  where
+    stepRest [] = [] -- Base: lista vazia
+    stepRest (y:ys)
+      | not (isValue y) = step y : ys -- Avalia o próximo elemento
+      | otherwise = y : stepRest ys
+step (List []) = List [] -- Lista vazia já é um valor
+
+-- Funções head e tail para listas
+step (App (Var "head") (List (x:_))) = x
+step (App (Var "head") (List [])) = error "Erro: Lista vazia não tem cabeça."
+step (App (Var "tail") (List (_:xs))) = List xs
+step (App (Var "tail") (List [])) = error "Erro: Lista vazia não tem cauda."
+
+-- Adição entre listas
+step (Add (List xs) (List ys)) = List (xs ++ ys) -- Concatena listas
+step (Add (Num n) (List xs)) = List (map (\x -> step (Add (Num n) x)) xs) -- Soma número a cada elemento
+step (Add (List xs) (Num n)) = List (map (\x -> step (Add x (Num n))) xs) -- Soma elementos da lista ao número
+
+-- Caso geral de Add, Sub e Mul permanece o mesmo
 step (Add (Num n1) (Num n2)) = Num (n1 + n2)
 step (Add (Num nv) e2) = Add (Num nv) (step e2) 
 step (Add e1 e2) = Add (step e1) e2
@@ -48,6 +74,8 @@ step (Sub e1 e2) = Sub (step e1) e2
 step (Mul (Num n1) (Num n2)) = Num (n1 * n2)
 step (Mul (Num nv) e2) = Mul (Num nv) (step e2)
 step (Mul e1 e2) = Mul (step e1) e2
+
+-- Outras operações permanecem inalteradas
 
 step (And BFalse _) = BFalse 
 step (And BTrue e) = e 

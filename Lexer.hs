@@ -20,11 +20,13 @@ data Expr = BTrue
           | Var String 
           | Lam String Ty Expr 
           | App Expr Expr
+          | List [Expr]
           deriving (Show, Eq)
 
 data Ty = TBool 
         | TNum 
         | TFun Ty Ty 
+        | TList Ty 
         deriving (Show, Eq)
 
 data Token = TokenTrue
@@ -43,7 +45,10 @@ data Token = TokenTrue
            | TokenLt
            | TokenIf
            | TokenThen
-           | TokenElse 
+           | TokenElse
+           | TokenLBracket  -- [
+           | TokenRBracket  -- ]
+           | TokenComma     -- ,
            | TokenVar String
            | TokenLam 
            | TokenArrow 
@@ -62,6 +67,9 @@ lexer ('>':'=':cs) = TokenGeq : lexer cs
 lexer ('<':'=':cs) = TokenLeq : lexer cs
 lexer ('<':cs) = TokenLt : lexer cs
 lexer ('>':cs) = TokenGt : lexer cs
+lexer ('[':cs) = TokenLBracket : lexer cs
+lexer (']':cs) = TokenRBracket : lexer cs
+lexer (',':cs) = TokenComma : lexer cs
 lexer (c:cs) 
    | isSpace c = lexer cs 
    | isAlpha c = lexerKW (c:cs) 
