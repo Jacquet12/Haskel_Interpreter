@@ -28,7 +28,12 @@
   else          { TokenElse }
   '['           { TokenLBracket }
   ']'           { TokenRBracket }
+  '\\'          { TokenLam }
+  "->"          { TokenArrow }
+  '('           { TokenLParen }
+  ')'           { TokenRParen }
   ','           { TokenComma }
+  ':'           { TokenColon }
   var           { TokenVar $$ }
   head          { TokenHead }
   tail          { TokenTail }
@@ -62,13 +67,19 @@ Exp : Exp Exp                        { App $1 $2 }               -- Aplicação 
     | Exp ">=" Exp                   { Geq $1 $3 }               -- Maior ou igual
     | Exp "<=" Exp                   { Leq $1 $3 }               -- Menor ou igual
     | Exp '>' Exp                    { Gt $1 $3 }                -- Maior
-    | Exp '<' Exp                    { Lt $1 $3 }                -- Menor
+    | Exp '<' Exp                    { Lt $1 $3 }
+    | '\\' var ':' Type "->" Exp      { Lam $2 $4 $6 }    
+    | '(' Exp ')'                   { Paren $2 }           -- Menor
     | if Exp then Exp else Exp       { If $2 $4 $6 }             -- Estrutura condicional (if-then-else)
     | head Exp                       { Head $2 }                 -- Função head
     | tail Exp                       { Tail $2 }                 -- Função tail
 
-ExpList : Exp                         { [$1] }                   -- Lista com um único elemento
-        | Exp ',' ExpList             { $1 : $3 }                -- Lista com mais de um elemento
+ExpList : Exp                         { [$1] }                    -- Lista com um único elemento
+        | Exp ',' ExpList             { $1 : $3 }                 -- Lista com mais de um elemento
+
+Type    : '(' Type "->" Type ')'            { TFun $2 $4 }  -- Tipo função: Type -> Type
+        | '[' Type ']'                     { TList $2 }     -- Tipo lista de elementos de tipo Type
+
 
 {
   parseError :: [Token] -> a

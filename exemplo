@@ -1,0 +1,101 @@
+print $ eval $ typecheck $ parser $ lexer "5 + 3" 
+-- Num 8
+
+print $ eval $ typecheck $ parser $ lexer "5 * 5" 
+-- Num 25
+
+print $ eval $ typecheck $ parser $ lexer "10 - 3"
+-- Num 7
+
+print $ eval $ typecheck $ parser $ lexer "6 / 2"
+-- Num 3
+
+
+print $ eval $ typecheck $ parser $ lexer "4 < 5"
+-- BTrue
+
+print $ eval $ typecheck $ parser $ lexer "4 > 5"
+-- BFalse
+
+print $ eval $ typecheck $ parser $ lexer "4 == 5"
+-- BFalse
+
+print $ eval $ typecheck $ parser $ lexer "5 >= 5"
+-- BTrue
+
+print $ eval $ typecheck $ parser $ lexer "[1, 2, 3]"
+-- List [Num 1, Num 2, Num 3]
+
+print $ eval $ typecheck $ parser $ lexer "[1, 2] + [3, 4]"
+-- List [Num 1, Num 2, Num 3, Num 4]
+
+print $ eval $ typecheck $ parser $ lexer "[1, 2] * 2"
+-- List [Num 2, Num 4]
+
+print $ eval $ typecheck $ parser $ lexer "head [1, 2, 3]"
+-- Num 1
+
+print $ eval $ typecheck $ parser $ lexer "tail [1, 2, 3]"
+-- List [Num 2, Num 3]
+
+print $ eval $ typecheck $ parser $ lexer "\\x : Num -> Num. x + 1"
+-- Lam "x" (TNum -> TNum) (Add (Var "x") (Num 1))
+
+print $ eval $ typecheck $ parser $ lexer "(\\x : Num -> Num. x + 1) 5"
+-- Num 6
+
+print $ eval $ typecheck $ parser $ lexer "\\x : Num. \\y : Num. x + y"
+-- Lam "x" (TNum -> TNum) (Lam "y" TNum (Add (Var "x") (Var "y")))
+
+print $ eval $ typecheck $ parser $ lexer "((\\x : Num. x * 2) 4)"
+-- Num 8
+
+
+print $ eval $ typecheck $ parser $ lexer "if 4 > 5 then 10 else 20"
+-- Num 20
+
+print $ eval $ typecheck $ parser $ lexer "if 5 == 5 then 10 else 20"
+-- Num 10
+
+
+print $ eval $ typecheck $ parser $ lexer "not true"
+-- BFalse
+
+print $ eval $ typecheck $ parser $ lexer "true and false"
+-- BFalse
+
+print $ eval $ typecheck $ parser $ lexer "true or false"
+-- BTrue
+
+
+print $ eval $ typecheck $ parser $ lexer "4 + 5 * 3"
+-- Num 19
+
+print $ eval $ typecheck $ parser $ lexer "(4 + 5) * 3"
+-- Num 27
+
+
+print $ eval $ typecheck $ parser $ lexer "5 * 5"
+-- Esperado: Num 25
+
+
+print $ eval $ typecheck $ parser $ lexer "[1, 2, 3]"
+-- Esperado: List [Num 1, Num 2, Num 3]
+
+
+print $ eval $ typecheck $ parser $ lexer "[true, false, true]"
+-- Esperado: List [BTrue, BFalse, BTrue]
+
+print $ eval $ typecheck $ parser $ lexer "[1, true, 3]"
+-- Esperado: Erro (não pode misturar tipos na lista)
+
+
+print $ eval $ typecheck $ parser $ lexer "\\x: num -> x + 1"
+-- Esperado: Lam "x" TNum (Add (Var "x") (Num 1))
+
+
+print $ eval $ typecheck $ parser $ lexer "(\\x: num -> x + 1) 4"
+-- Esperado: Num 5
+
+print $ eval $ typecheck $ parser $ lexer "\\x: list num -> head x"
+-- Esperado: Lam "x" (TList TNum) (Head (Var "x"))

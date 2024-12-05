@@ -23,6 +23,7 @@ data Expr = BTrue
           | List [Expr]
           | Head Expr
           | Tail Expr
+          | Paren Expr 
           deriving (Show, Eq)
 
 data Ty = TBool 
@@ -56,6 +57,9 @@ data Token = TokenTrue
            | TokenArrow 
            | TokenHead 
            | TokenTail 
+           | TokenLParen     -- (
+           | TokenRParen     -- )
+           | TokenColon      -- :
            | TokenError String
            deriving Show
 
