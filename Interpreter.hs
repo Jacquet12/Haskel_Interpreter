@@ -52,10 +52,10 @@ step (List (x:xs))
 step (List []) = List [] -- Lista vazia já é um valor
 
 -- Funções head e tail para listas
-step (App (Var "head") (List (x:_))) = x
-step (App (Var "head") (List [])) = error "Erro: Lista vazia não tem cabeça."
-step (App (Var "tail") (List (_:xs))) = List xs
-step (App (Var "tail") (List [])) = error "Erro: Lista vazia não tem cauda."
+step (Head (List (x:_))) = x
+step (Head (List [])) = error "Erro: Lista vazia não tem cabeça."
+step (Tail (List (_:xs))) = List xs
+step (Tail (List [])) = error "Erro: Lista vazia não tem cauda."
 
 -- Adição entre listas
 step (Add (List xs) (List ys)) = List (xs ++ ys) -- Concatena listas

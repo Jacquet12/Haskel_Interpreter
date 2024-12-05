@@ -30,6 +30,10 @@
   ']'           { TokenRBracket }
   ','           { TokenComma }
   var           { TokenVar $$ }
+  head          { TokenHead } 
+  tail          { TokenTail }
+  '\\'          { TokenLam }
+  "->"          { TokenArrow }
 
 %nonassoc if then else
 %left or
@@ -41,12 +45,13 @@
 
 %% 
 
-Exp : '['ExpList']'               { List $2 }
+Exp : '[' ']'                     { List [] }
+    | '['ExpList']'               { List $2 }
     | true                        { BTrue }
     | false                       { BFalse }
     | num                         { Num $1 }
-    | var                         { Var $1 }                  -- Reconhece variáveis como `head`
-    | var Exp                     { App (Var $1) $2 }         -- Suporta aplicação de variáveis a expressões
+    | var                         { Var $1 }
+    | var Exp                     { App (Var $1) $2 }
     | Exp '+' Exp                 { Add $1 $3 }
     | Exp '-' Exp                 { Sub $1 $3 }
     | Exp '*' Exp                 { Mul $1 $3 }
@@ -59,10 +64,14 @@ Exp : '['ExpList']'               { List $2 }
     | Exp '>' Exp                 { Gt $1 $3 }
     | Exp '<' Exp                 { Lt $1 $3 }
     | if Exp then Exp else Exp    { If $2 $4 $6 }
+    | head Exp                    { Head $2 }
+    | tail Exp                    { Tail $2 } 
+    | '\\' var "->" Exp           { Lam $2 Nothing $4 }
+    | Exp Exp                     { App $1 $2 }
+    
 
 ExpList : Exp                 { [$1] }
         | Exp ',' ExpList     { $1 : $3 }
-        |                     { [] }
 
 {
   parseError :: [Token] -> a 

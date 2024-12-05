@@ -18,9 +18,11 @@ data Expr = BTrue
           | Lt Expr Expr
           | If Expr Expr Expr 
           | Var String 
-          | Lam String Ty Expr 
+          | Lam String Ty Expr
           | App Expr Expr
           | List [Expr]
+          | Head Expr  -- Defina Head como parte de Expr
+          | Tail Expr  -- Defina Tail como parte de Expr
           deriving (Show, Eq)
 
 data Ty = TBool 
@@ -52,6 +54,8 @@ data Token = TokenTrue
            | TokenVar String
            | TokenLam 
            | TokenArrow 
+           | TokenHead 
+           | TokenTail 
            | TokenError String
            deriving Show
 
@@ -70,6 +74,7 @@ lexer ('>':cs) = TokenGt : lexer cs
 lexer ('[':cs) = TokenLBracket : lexer cs
 lexer (']':cs) = TokenRBracket : lexer cs
 lexer (',':cs) = TokenComma : lexer cs
+lexer ('-':'>':cs) = TokenArrow : lexer cs 
 lexer (c:cs) 
    | isSpace c = lexer cs 
    | isAlpha c = lexerKW (c:cs) 
@@ -89,5 +94,7 @@ lexerKW cs = case span isAlpha cs of
                ("if", rest) -> TokenIf : lexer rest 
                ("then", rest) -> TokenThen : lexer rest 
                ("else", rest) -> TokenElse : lexer rest 
+               ("head", rest) -> TokenHead : lexer rest
+               ("tail", rest) -> TokenTail : lexer rest 
                (var, rest) -> TokenVar var : lexer rest
 

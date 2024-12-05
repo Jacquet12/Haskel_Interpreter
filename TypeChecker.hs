@@ -84,14 +84,14 @@ typeof ctx (App e1 e2) = case (typeof ctx e1, typeof ctx e2) of
                            _ -> Nothing
 
 -- Listas
-typeof ctx (List []) = Just (TList TNum) -- Listas vazias são listas de números por padrão
+typeof ctx (List []) = Nothing
 typeof ctx (List (x:xs)) = case typeof ctx x of
                              Just t -> if all (\e -> typeof ctx e == Just t) xs
                                        then Just (TList t)
                                        else Nothing
                              _ -> Nothing
 
--- Verificação de tipos
+
 typecheck :: Expr -> Expr 
 typecheck e = case typeof [] e of 
                 (Just _) -> e 
