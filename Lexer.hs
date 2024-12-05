@@ -21,8 +21,8 @@ data Expr = BTrue
           | Lam String Ty Expr
           | App Expr Expr
           | List [Expr]
-          | Head Expr  -- Defina Head como parte de Expr
-          | Tail Expr  -- Defina Tail como parte de Expr
+          | Head Expr
+          | Tail Expr
           deriving (Show, Eq)
 
 data Ty = TBool 
@@ -63,9 +63,9 @@ lexer :: String -> [Token]
 lexer [] = [] 
 lexer ('+':cs) = TokenAdd : lexer cs
 lexer ('*':cs) = TokenMul : lexer cs 
-lexer ('\\':cs) = TokenLam : lexer cs 
+lexer ('\\':cs) = TokenLam : lexer cs  -- Token para o lambda
 lexer ('=':'=':cs) = TokenEq : lexer cs 
-lexer ('-':'>':cs) = TokenArrow : lexer cs 
+lexer ('-':'>':cs) = TokenArrow : lexer cs  -- Token para "->"
 lexer ('-':cs) = TokenSub : lexer cs
 lexer ('>':'=':cs) = TokenGeq : lexer cs
 lexer ('<':'=':cs) = TokenLeq : lexer cs
@@ -74,7 +74,6 @@ lexer ('>':cs) = TokenGt : lexer cs
 lexer ('[':cs) = TokenLBracket : lexer cs
 lexer (']':cs) = TokenRBracket : lexer cs
 lexer (',':cs) = TokenComma : lexer cs
-lexer ('-':'>':cs) = TokenArrow : lexer cs 
 lexer (c:cs) 
    | isSpace c = lexer cs 
    | isAlpha c = lexerKW (c:cs) 
@@ -97,4 +96,3 @@ lexerKW cs = case span isAlpha cs of
                ("head", rest) -> TokenHead : lexer rest
                ("tail", rest) -> TokenTail : lexer rest 
                (var, rest) -> TokenVar var : lexer rest
-
